@@ -17,7 +17,7 @@
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-pencil me-2"></i> Edit Parking Slot</h2>
-            <a href="{{ route('admin.parking-slots.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('parking-slots.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i> Back to Parking Slots
             </a>
         </div>
@@ -29,7 +29,7 @@
                         <h5 class="card-title mb-0">Edit Parking Slot Information</h5>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('admin.parking-slots.update', $parkingSlot) }}" method="POST">
+                        <form action="{{ route('parking-slots.update', $parkingSlot) }}" method="POST">
                             @csrf
                             @method('PUT')
                             <div class="row g-3">
@@ -65,7 +65,7 @@
                                 
                                 <div class="col-12">
                                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                        <a href="{{ route('admin.parking-slots.index') }}" class="btn btn-outline-secondary me-2">
+                                        <a href="{{ route('parking-slots.index') }}" class="btn btn-outline-secondary me-2">
                                             Cancel
                                         </a>
                                         <button type="submit" class="btn btn-primary-custom">

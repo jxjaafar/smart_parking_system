@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parking Slots - Smart Parking System</title>
+    <title>Users Management - Smart Parking System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -51,6 +51,17 @@
         .stat-card p { margin: 0; opacity: 0.9; }
         .table-responsive { border-radius: 10px; overflow: hidden; }
         .table thead { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -60,15 +71,12 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h2 class="mb-1">
-                        <i class="bi bi-p-square-fill me-2" style="color: #667eea;"></i>
-                        Parking Slots Management
+                        <i class="bi bi-people-fill me-2" style="color: #667eea;"></i>
+                        Users Management
                     </h2>
-                    <p class="text-muted mb-0">Manage all parking slots and their availability</p>
+                    <p class="text-muted mb-0">Manage all registered users and their accounts</p>
                 </div>
                 <div>
-                    <a href="{{ route('parking-slots.create') }}" class="btn btn-primary-custom me-2">
-                        <i class="bi bi-plus-circle me-2"></i>Add New Slot
-                    </a>
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
                     </a>
@@ -78,32 +86,25 @@
 
         <!-- Statistics Cards -->
         <div class="row g-3 mb-4">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="stat-card">
-                    <i class="bi bi-p-square display-5"></i>
+                    <i class="bi bi-people display-5"></i>
                     <h3>{{ $stats['total'] }}</h3>
-                    <p>Total Slots</p>
+                    <p>Total Users</p>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="stat-card" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);">
-                    <i class="bi bi-check-circle display-5"></i>
-                    <h3>{{ $stats['available'] }}</h3>
-                    <p>Available</p>
+                    <i class="bi bi-person-fill display-5"></i>
+                    <h3>{{ $stats['drivers'] }}</h3>
+                    <p>Drivers</p>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-                    <i class="bi bi-x-circle display-5"></i>
-                    <h3>{{ $stats['occupied'] }}</h3>
-                    <p>Occupied</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card" style="background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);">
-                    <i class="bi bi-tools display-5"></i>
-                    <h3>{{ $stats['maintenance'] }}</h3>
-                    <p>Maintenance</p>
+                    <i class="bi bi-shield-fill-check display-5"></i>
+                    <h3>{{ $stats['admins'] }}</h3>
+                    <p>Administrators</p>
                 </div>
             </div>
         </div>
@@ -127,18 +128,17 @@
             <div class="card-body">
                 <h5 class="mb-3"><i class="bi bi-funnel me-2"></i>Search & Filter</h5>
                 <form method="GET" class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label">Search</label>
                         <input type="text" name="search" class="form-control" 
-                               placeholder="Search slot number or location..." value="{{ request('search') }}">
+                               placeholder="Search by name, email, or phone..." value="{{ request('search') }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-control">
-                            <option value="">All Statuses</option>
-                            <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>Available</option>
-                            <option value="Occupied" {{ request('status') == 'Occupied' ? 'selected' : '' }}>Occupied</option>
-                            <option value="Maintenance" {{ request('status') == 'Maintenance' ? 'selected' : '' }}>Maintenance</option>
+                        <label class="form-label">Role</label>
+                        <select name="role" class="form-control">
+                            <option value="">All Roles</option>
+                            <option value="Driver" {{ request('role') == 'Driver' ? 'selected' : '' }}>Driver</option>
+                            <option value="Admin" {{ request('role') == 'Admin' ? 'selected' : '' }}>Admin</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -146,15 +146,15 @@
                         <button type="submit" class="btn btn-primary-custom me-2">
                             <i class="bi bi-search me-2"></i>Filter
                         </button>
-                        <a href="{{ route('parking-slots.index') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-clockwise"></i> Reset
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-clockwise"></i>
                         </a>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Parking Slots Table -->
+        <!-- Users Table -->
         <div class="card-custom">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -162,54 +162,62 @@
                         <thead>
                             <tr>
                                 <th><i class="bi bi-hash me-2"></i>ID</th>
-                                <th><i class="bi bi-123 me-2"></i>Slot Number</th>
-                                <th><i class="bi bi-geo-alt me-2"></i>Location</th>
-                                <th><i class="bi bi-circle-fill me-2"></i>Status</th>
-                                <th><i class="bi bi-currency-dollar me-2"></i>Price/Hour</th>
-                                <th><i class="bi bi-file-text me-2"></i>Description</th>
+                                <th><i class="bi bi-person me-2"></i>User</th>
+                                <th><i class="bi bi-envelope me-2"></i>Email</th>
+                                <th><i class="bi bi-phone me-2"></i>Phone</th>
+                                <th><i class="bi bi-shield me-2"></i>Role</th>
+                                <th><i class="bi bi-calendar me-2"></i>Registered</th>
+                                <th><i class="bi bi-car-front me-2"></i>Vehicles</th>
                                 <th><i class="bi bi-gear me-2"></i>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($parkingSlots as $slot)
+                            @forelse($users as $user)
                             <tr>
-                                <td class="fw-bold">#{{ $slot->id }}</td>
-                                <td><span class="badge bg-dark">{{ $slot->slotNumber }}</span></td>
-                                <td>{{ $slot->location }}</td>
+                                <td class="fw-bold">#{{ $user->userID }}</td>
                                 <td>
-                                    <span class="badge bg-{{ 
-                                        $slot->status == 'Available' ? 'success' : 
-                                        ($slot->status == 'Occupied' ? 'danger' : 'warning') 
-                                    }}">
-                                        {{ $slot->status }}
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-2">
+                                            {{ strtoupper(substr($user->fullName, 0, 1)) }}
+                                        </div>
+                                        <span>{{ $user->fullName }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ $user->email }}</td>
+                                <td>{{ $user->phoneNumber ?? 'N/A' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ $user->role == 'Admin' ? 'danger' : 'primary' }}">
+                                        {{ $user->role }}
                                     </span>
                                 </td>
-                                <td class="fw-bold">KES {{ number_format($slot->pricePerHour, 2) }}</td>
-                                <td>{{ Str::limit($slot->description ?? 'N/A', 30) }}</td>
+                                <td>{{ $user->dateRegistered ? \Carbon\Carbon::parse($user->dateRegistered)->format('M d, Y') : 'N/A' }}</td>
                                 <td>
-                                    <a href="{{ route('parking-slots.edit', $slot->id) }}" 
-                                       class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-pencil"></i>
+                                    <span class="badge bg-info">{{ $user->vehicles->count() }}</span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.users.show', $user->userID) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="View Details">
+                                        <i class="bi bi-eye"></i>
                                     </a>
-                                    <form action="{{ route('parking-slots.destroy', $slot->id) }}" 
+                                    @if($user->userID != auth()->id())
+                                    <form action="{{ route('admin.users.destroy', $user->userID) }}" 
                                           method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                                onclick="return confirm('Delete slot {{ $slot->slotNumber }}?')">
+                                                onclick="return confirm('Delete user {{ $user->fullName }}?')"
+                                                title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5">
+                                <td colspan="8" class="text-center py-5">
                                     <i class="bi bi-inbox display-1 text-muted d-block mb-3"></i>
-                                    <p class="text-muted">No parking slots found.</p>
-                                    <a href="{{ route('parking-slots.create') }}" class="btn btn-primary-custom">
-                                        <i class="bi bi-plus-circle me-2"></i>Add Your First Slot
-                                    </a>
+                                    <p class="text-muted">No users found.</p>
                                 </td>
                             </tr>
                             @endforelse
@@ -217,9 +225,9 @@
                     </table>
                 </div>
             </div>
-            @if($parkingSlots->count() > 0)
+            @if($users->count() > 0)
             <div class="card-footer bg-light">
-                <small class="text-muted">Showing {{ $parkingSlots->count() }} parking slots</small>
+                <small class="text-muted">Showing {{ $users->count() }} users</small>
             </div>
             @endif
         </div>

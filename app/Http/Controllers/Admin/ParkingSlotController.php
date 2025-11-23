@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ParkingSlot;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class ParkingSlotController extends Controller
 {
@@ -27,16 +26,17 @@ class ParkingSlotController extends Controller
             $query->where('status', $request->status);
         }
         
-        // Filter by price range
-        if ($request->has('min_price') && $request->min_price != '') {
-            $query->where('pricePerHour', '>=', $request->min_price);
-        }
-        if ($request->has('max_price') && $request->max_price != '') {
-            $query->where('pricePerHour', '<=', $request->max_price);
-        }
+        $parkingSlots = $query->orderBy('id')->get();
         
-        $parkingSlots = $query->orderBy('slotID')->get();
-        return view('admin.parking-slots.index', compact('parkingSlots'));
+        // Get statistics
+        $stats = [
+            'total' => ParkingSlot::count(),
+            'available' => ParkingSlot::where('status', 'Available')->count(),
+            'occupied' => ParkingSlot::where('status', 'Occupied')->count(),
+            'maintenance' => ParkingSlot::where('status', 'Maintenance')->count(),
+        ];
+        
+        return view('admin.parking-slots.index', compact('parkingSlots', 'stats'));
     }
 
     public function create()
@@ -47,7 +47,7 @@ class ParkingSlotController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'slotNumber' => 'required|unique:ParkingSlot,slotNumber',
+            'slotNumber' => 'required|unique:parking_slots,slotNumber',
             'location' => 'required|string|max:255',
             'pricePerHour' => 'required|numeric|min:0',
             'status' => 'required|in:Available,Occupied,Maintenance',
@@ -62,7 +62,7 @@ class ParkingSlotController extends Controller
             'description' => $request->description
         ]);
 
-        return redirect()->route('admin.parking-slots.index')
+        return redirect()->route('parking-slots.index')
                          ->with('success', 'Parking slot created successfully.');
     }
 
@@ -77,7 +77,7 @@ class ParkingSlotController extends Controller
         $parkingSlot = ParkingSlot::findOrFail($id);
         
         $request->validate([
-            'slotNumber' => 'required|unique:ParkingSlot,slotNumber,' . $id . ',slotID',
+            'slotNumber' => 'required|unique:parking_slots,slotNumber,' . $id,
             'location' => 'required|string|max:255',
             'pricePerHour' => 'required|numeric|min:0',
             'status' => 'required|in:Available,Occupied,Maintenance',
@@ -92,16 +92,23 @@ class ParkingSlotController extends Controller
             'description' => $request->description
         ]);
 
-        return redirect()->route('admin.parking-slots.index')
+        return redirect()->route('parking-slots.index')
                          ->with('success', 'Parking slot updated successfully.');
     }
 
     public function destroy($id)
     {
         $parkingSlot = ParkingSlot::findOrFail($id);
+        
+        // Check if slot has active reservations
+        if ($parkingSlot->reservations()->where('reservationStatus', 'Active')->exists()) {
+            return redirect()->route('parking-slots.index')
+                           ->with('error', 'Cannot delete slot with active reservations.');
+        }
+        
         $parkingSlot->delete();
         
-        return redirect()->route('admin.parking-slots.index')
+        return redirect()->route('parking-slots.index')
                          ->with('success', 'Parking slot deleted successfully.');
     }
 }

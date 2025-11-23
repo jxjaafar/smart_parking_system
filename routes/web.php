@@ -82,14 +82,36 @@ Route::post('/admin/login', [App\Http\Controllers\Admin\AuthController::class, '
 Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->group(function () {
     // Admin dashboard
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
+    
     // Logout
     Route::post('/logout', [App\Http\Controllers\Admin\AuthController::class, 'logout'])->name('admin.logout');
+    
     // Parking Slot Management
-    Route::resource('parking-slots', App\Http\Controllers\Admin\ParkingSlotController::class);
+    Route::resource('parking-slots', App\Http\Controllers\Admin\ParkingSlotController::class)->names([
+        'index' => 'parking-slots.index',
+        'create' => 'parking-slots.create',
+        'store' => 'parking-slots.store',
+        'show' => 'parking-slots.show',
+        'edit' => 'parking-slots.edit',
+        'update' => 'parking-slots.update',
+        'destroy' => 'parking-slots.destroy',
+    ]);
+    
+    // User Management
+    Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
+    Route::get('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'show'])->name('admin.users.show');
+    Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
+    
     // Reservation Management
-    Route::resource('reservations', App\Http\Controllers\Admin\ReservationController::class);
+    Route::resource('reservations', App\Http\Controllers\Admin\ReservationController::class)->names([
+        'index' => 'admin.reservations.index',
+        'show' => 'admin.reservations.show',
+        'edit' => 'admin.reservations.edit',
+        'update' => 'admin.reservations.update',
+        'destroy' => 'admin.reservations.destroy',
+    ]);
+    
     // Reports
     Route::get('/reports', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports.index');
     Route::get('/reports/export', [App\Http\Controllers\Admin\ReportController::class, 'export'])->name('admin.reports.export');
-    // Add other admin-only routes here
 });
