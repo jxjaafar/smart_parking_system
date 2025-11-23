@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
@@ -10,38 +9,45 @@ use Illuminate\Support\Facades\Auth;
 
 class SlotController extends Controller
 {
-    // Show available slots
+    // Show available parking slots
     public function index()
     {
-        $slots = ParkingSlot::where('status', 'available')->get();
-        return view('user.index', compact('slots'));
+        $slots = ParkingSlot::all();
+        return view('user.view-slots', compact('slots'));
     }
-
+    
     // Booking form
     public function bookForm($id)
     {
         $slot = ParkingSlot::findOrFail($id);
-
         return view('user.slots.book', compact('slot'));
     }
-
+    
     // Save booking
     public function storeBooking(Request $request, $id)
     {
         $slot = ParkingSlot::findOrFail($id);
-
-        // create reservation
+        
+        // Check if slot is still available
+        if ($slot->status !== 'Available') {
+            return redirect()->route('slots.index')
+                ->with('error', 'This slot is no longer available.');
+        }
+        
+        // Create reservation with start time
         Reservation::create([
-            'user_id' => Auth::id(),
-            'parking_slot_id' => $slot->id,
-            'status' => 'active'
+            'userID' => Auth::id(),
+            'slotID' => $slot->id,  // Changed from $slot->slotID to $slot->id
+            'startTime' => now(),
+            'reservationStatus' => 'Active',
+            'paymentStatus' => 'Unpaid'
         ]);
-
-        // update slot
-        $slot->status = 'occupied';
+        
+        // Update slot status
+        $slot->status = 'Occupied';
         $slot->save();
-
-        return redirect()->route('user.reservations')
-                         ->with('success', 'Slot booked successfully');
+        
+        return redirect()->route('user.reservations.index')
+            ->with('success', 'Slot booked successfully! Timer started.');
     }
 }

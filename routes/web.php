@@ -12,32 +12,28 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
-
-
-// MINIMAL TEST ROUTE
-Route::get('/minimal-test', function() {
-    return "Minimal test works!";
-});
-
 // =============================================
 //              PUBLIC / DEFAULT ROUTES
 // =============================================
 
-// Homepage → user index
-Route::get('/', [SlotController::class, 'index'])->name('home');
+// Homepage → Landing page (the marketing page with Get Started/Sign In buttons)
+Route::get('/', function () {
+    return view('welcome'); // Your landing page with hero section
+})->name('home');
 
 require __DIR__.'/auth.php';
 
 // =========================
 // USER ROUTES (FRONTEND)
 // =========================
-// Parking slots (public)
-Route::get('/slots', [SlotController::class, 'index'])->name('user.slots.index');
-Route::get('/view-slots', [SlotController::class, 'index'])->name('view-slots');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard
+    // Dashboard - Shows Image 1 (Quick Actions, Why Choose Smart Parking)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Slots - Shows Image 2 (Available Parking Slots listing)
+    Route::get('/slots', [SlotController::class, 'index'])->name('slots.index');
+    Route::get('/view-slots', [SlotController::class, 'index'])->name('view-slots'); // Alias for backward compatibility
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -51,6 +47,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Reservations
     Route::get('/my-reservations', [ReservationController::class, 'index'])->name('user.reservations.index');
+    Route::post('/my-reservations/{id}/end', [ReservationController::class, 'endReservation'])->name('user.reservations.end');
+    Route::post('/my-reservations/{id}/pay', [ReservationController::class, 'processPayment'])->name('user.reservations.pay');
     Route::delete('/my-reservations/{id}', [ReservationController::class, 'destroy'])->name('user.reservations.cancel');
 
     // Payments

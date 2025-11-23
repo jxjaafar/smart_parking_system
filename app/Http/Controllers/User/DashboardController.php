@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        return view('user.dashboard');
-    }   
+        // This should return the view with Quick Actions (Image 1)
+        return view('user.dashboard'); // Or whatever your proper dashboard blade is
+    }
 }

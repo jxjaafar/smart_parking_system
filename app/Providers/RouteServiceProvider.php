@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Providers;
-
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Cache\RateLimiter;
@@ -17,15 +15,16 @@ class RouteServiceProvider extends ServiceProvider
      * 
      * @var string
      */
-    public const HOME = '/home';
+    public const HOME = '/dashboard';
+
     /**
      * The controller namespace for the application
      * 
      * When present, controller route declaration will automatically be pre fixed with this namespace
      * 
      * @var string|null
-     * /
-     // protected $namespace = 'App\\Http\\Controllers';
+     */
+    // protected $namespace = 'App\\Http\\Controllers';
 
     /**
      * Define your route model bindings, pattern filters, etc.
@@ -43,8 +42,6 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
-
-            
         });
     }
 

@@ -20,17 +20,16 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        // Use Hamza's User table (PascalCase)
         $credentials = $request->only('email', 'password');
-        
+
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            
-            // Check if user is admin
-            if (Auth::user()->role === 'Admin') {
+
+            // Check if user is admin (case-insensitive)
+            if (strtolower(Auth::user()->role) === 'admin') {
                 return redirect()->intended('/admin/dashboard');
             }
-            
+
             // If not admin, logout and show error
             Auth::logout();
             throw ValidationException::withMessages([
@@ -48,7 +47,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect('/admin/login');
     }
 }
